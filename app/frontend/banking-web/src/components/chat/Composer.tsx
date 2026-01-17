@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp, Loader2, Paperclip, Plus, Square, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
 import { useChat } from "./ChatProvider";
 import { ChatApiClient } from "./apiClient";
 import type { AttachmentMeta } from "./types";
@@ -42,7 +42,7 @@ const BUTTON_DIMENSIONS: Record<ButtonSize, ButtonDimensions> = {
 };
 
 const DEFAULT_MAX_ATTACHMENTS = 5;
-const DEFAULT_PLACEHOLDER = "Type your message...";
+const DEFAULT_PLACEHOLDER = "메시지를 입력하세요...";
 
 export function Composer({
   placeholder = DEFAULT_PLACEHOLDER,
@@ -61,7 +61,7 @@ export function Composer({
 
   // Get button dimensions based on size
   const buttonDimensions = BUTTON_DIMENSIONS[buttonSize];
-  
+
   // Adjust textarea min-height based on button size and counter visibility
   const textareaMinHeight = buttonSize === "sm" && !showAttachmentCounter ? "min-h-[32px]" : "min-h-[64px]";
 
@@ -89,7 +89,7 @@ export function Composer({
   const handleFilesSelected = async (fileList: FileList | null) => {
     if (!fileList?.length) return;
     const files = Array.from(fileList);
-    
+
     for (const file of files) {
       if (attachments.length >= maxAttachments) {
         break;
@@ -97,10 +97,10 @@ export function Composer({
 
       // Create local preview immediately
       const localPreviewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : undefined;
-      
+
       // Generate temporary ID for the attachment
       const tempId = `temp_${Math.random().toString(36).slice(2, 8)}`;
-      
+
       // Add attachment with pending status
       const pendingAttachment: ComposerAttachment = {
         id: tempId,
@@ -145,12 +145,12 @@ export function Composer({
         prev.map((att) =>
           att.id === tempId
             ? {
-                ...att,
-                id: response.id,
-                serverPreviewUrl: response.preview_url,
-                uploadStatus: "uploaded" as const,
-                uploadProgress: 100,
-              }
+              ...att,
+              id: response.id,
+              serverPreviewUrl: response.preview_url,
+              uploadStatus: "uploaded" as const,
+              uploadProgress: 100,
+            }
             : att
         )
       );
@@ -170,7 +170,7 @@ export function Composer({
       }
     } catch (error) {
       console.error("Failed to upload attachment:", error);
-      
+
       // Mark as error
       setAttachments((prev) =>
         prev.map((att) =>
@@ -230,7 +230,7 @@ export function Composer({
 
     // Only send attachments that are successfully uploaded
     const uploadedAttachments = attachments.filter((att) => att.uploadStatus === "uploaded");
-    
+
     const attachmentPayload: AttachmentMeta[] = uploadedAttachments.map((attachment) => ({
       id: attachment.id,
       name: attachment.file.name,
@@ -269,7 +269,7 @@ export function Composer({
               const isUploading = attachment.uploadStatus === "uploading";
               const isError = attachment.uploadStatus === "error";
               const showDetails = showAttachmentTitle || showAttachmentSize;
-              
+
               // Compact layout when no title/size shown
               if (!showDetails) {
                 return (
@@ -296,7 +296,7 @@ export function Composer({
                         type="button"
                         onClick={() => removeAttachment(attachment.id)}
                         className="absolute -right-1 -top-1 h-5 w-5 rounded-full border border-border bg-background shadow-sm opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-muted-foreground hover:text-foreground"
-                        aria-label={`Remove ${attachment.file.name}`}
+                        aria-label={`${attachment.file.name} 제거`}
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -304,14 +304,13 @@ export function Composer({
                   </div>
                 );
               }
-              
+
               // Full layout with details
               return (
                 <div
                   key={attachment.id}
-                  className={`group flex items-center gap-3 rounded-2xl border ${
-                    isError ? "border-destructive/50" : "border-dashed border-border"
-                  } bg-muted/40 px-3 py-2 text-xs shadow-sm`}
+                  className={`group flex items-center gap-3 rounded-2xl border ${isError ? "border-destructive/50" : "border-dashed border-border"
+                    } bg-muted/40 px-3 py-2 text-xs shadow-sm`}
                 >
                   <div className="relative">
                     {isImage && attachment.localPreviewUrl ? (
@@ -340,14 +339,14 @@ export function Composer({
                       <Progress value={attachment.uploadProgress} className="h-1" />
                     )}
                     {isError && (
-                      <p className="text-[11px] text-destructive">Upload failed</p>
+                      <p className="text-[11px] text-destructive">업로드 실패</p>
                     )}
                   </div>
                   <button
                     type="button"
                     onClick={() => removeAttachment(attachment.id)}
                     className="text-muted-foreground transition hover:text-foreground"
-                    aria-label={`Remove ${attachment.file.name}`}
+                    aria-label={`${attachment.file.name} 제거`}
                     disabled={isUploading}
                   >
                     <X className="h-3 w-3" />
@@ -368,7 +367,7 @@ export function Composer({
               disabled={attachments.length >= maxAttachments}
             >
               <Plus className={buttonDimensions.iconSize} />
-              <span className="sr-only">Add attachment</span>
+              <span className="sr-only">첨부파일 추가</span>
             </Button>
             {showAttachmentCounter && (
               <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
@@ -401,7 +400,7 @@ export function Composer({
               className={`${buttonDimensions.height} ${buttonDimensions.width} ${buttonDimensions.rounded} bg-destructive text-destructive-foreground shadow-sm`}
             >
               <Square className={buttonDimensions.iconSize} />
-              <span className="sr-only">Stop streaming</span>
+              <span className="sr-only">스트리밍 중지</span>
             </Button>
           )}
           <Button
@@ -412,7 +411,7 @@ export function Composer({
             disabled={isStreaming || !canSubmit}
           >
             {isStreaming ? <Loader2 className={`${buttonDimensions.iconSize} animate-spin`} /> : <ArrowUp className={buttonDimensions.iconSize} />}
-            <span className="sr-only">Send message</span>
+            <span className="sr-only">메시지 전송</span>
           </Button>
         </div>
       </div>

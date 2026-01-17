@@ -9,6 +9,8 @@ dependencies = [
     "fastmcp",
     "pydantic",
     "fastapi[all]==0.116.1",
-    "uvicorn"
+    "uvicorn",
+    "azure-monitor-opentelemetry>=1.6.0",
+    "opentelemetry-instrumentation-fastapi>=0.48b0"
 ]
 

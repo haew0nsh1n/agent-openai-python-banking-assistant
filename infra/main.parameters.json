@@ -33,7 +33,7 @@
       "value": "${AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP_LOCATION=eastus}"
     },
     "documentIntelligenceSkuName": {
-      "value": "S0"
+      "value": "F0"
     },
     "storageAccountName": {
       "value": "${AZURE_STORAGE_ACCOUNT}"
@@ -55,8 +55,7 @@
           "capacity": 80
         }
       ]
-    }
-    ,
+    },
     "backendAppExists": {
       "value": false
     },
@@ -73,5 +72,4 @@
       "value": false
     }
   }
-
 }

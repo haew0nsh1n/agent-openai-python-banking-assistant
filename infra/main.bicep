@@ -27,7 +27,6 @@ param foundryResourceName string = ''
 @description('The Azure AI Foundry Project name. If ommited will be generated')
 param aiProjectName string = ''
 
-
 // Look for the desired model in availability table. Default model is gpt-4o-mini:
 // https://learn.microsoft.com/azure/ai-services/openai/concepts/models#standard-deployment-model-availability
 @description('Location for the Foundry resource group')
@@ -73,16 +72,14 @@ param models array = [
     skuName: 'GlobalStandard'
     capacity: 120
   }
-
 ]
-
 
 param documentIntelligenceServiceName string = ''
 param documentIntelligenceResourceGroupName string = ''
 //Document Intelligence new rest api available in eastus, westus2, westeurope. https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/sdk-overview-v4-0?view=doc-intel-4.0.0&tabs=csharp
 @allowed(['eastus', 'westus2', 'westeurope'])
 param documentIntelligenceResourceGroupLocation string = 'eastus'
-param documentIntelligenceSkuName string = 'S0'
+param documentIntelligenceSkuName string = 'F0'
 
 param containerAppsEnvironmentName string = ''
 param containerRegistryName string = ''
@@ -97,7 +94,6 @@ param webAppExists bool = false
 param accountAppExists bool = false
 param paymentAppExists bool = false
 param transactionAppExists bool = false
-
 
 var abbrs = loadJsonContent('shared/abbreviations.json')
 var resourceToken = toLower(uniqueString(subscription().id, environmentName, location))
@@ -118,8 +114,6 @@ resource documentIntelligenceResourceGroup 'Microsoft.Resources/resourceGroups@2
   name: !empty(documentIntelligenceResourceGroupName) ? documentIntelligenceResourceGroupName : resourceGroup.name
 }
 
-
-
 resource storageResourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01' existing = if (!empty(storageResourceGroupName)) {
   name: !empty(storageResourceGroupName) ? storageResourceGroupName : resourceGroup.name
 }
@@ -131,11 +125,14 @@ module monitoring 'shared/monitor/monitoring.bicep' = {
   params: {
     location: location
     tags: tags
-    applicationInsightsName: !empty(applicationInsightsName) ? applicationInsightsName : '${abbrs.insightsComponents}${resourceToken}'
-    logAnalyticsName: !empty(logAnalyticsName) ? logAnalyticsName : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
+    applicationInsightsName: !empty(applicationInsightsName)
+      ? applicationInsightsName
+      : '${abbrs.insightsComponents}${resourceToken}'
+    logAnalyticsName: !empty(logAnalyticsName)
+      ? logAnalyticsName
+      : '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
   }
 }
-
 
 module containerApps 'shared/host/container-apps.bicep' = {
   name: 'container-apps'
@@ -144,8 +141,12 @@ module containerApps 'shared/host/container-apps.bicep' = {
     name: 'app'
     location: location
     tags: tags
-    containerAppsEnvironmentName: !empty(containerAppsEnvironmentName) ? containerAppsEnvironmentName : '${abbrs.appManagedEnvironments}${resourceToken}'
-    containerRegistryName: !empty(containerRegistryName) ? containerRegistryName : '${abbrs.containerRegistryRegistries}${resourceToken}'
+    containerAppsEnvironmentName: !empty(containerAppsEnvironmentName)
+      ? containerAppsEnvironmentName
+      : '${abbrs.appManagedEnvironments}${resourceToken}'
+    containerRegistryName: !empty(containerRegistryName)
+      ? containerRegistryName
+      : '${abbrs.containerRegistryRegistries}${resourceToken}'
     logAnalyticsWorkspaceName: monitoring.outputs.logAnalyticsWorkspaceName
     applicationInsightsName: monitoring.outputs.applicationInsightsName
   }
@@ -156,7 +157,9 @@ module backend 'app/backend.bicep' = {
   name: 'backend'
   scope: resourceGroup
   params: {
-    name: !empty(backendContainerAppName) ? backendContainerAppName : '${abbrs.appContainerApps}backend-${resourceToken}'
+    name: !empty(backendContainerAppName)
+      ? backendContainerAppName
+      : '${abbrs.appContainerApps}backend-${resourceToken}'
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}backend-${resourceToken}'
@@ -174,10 +177,10 @@ module backend 'app/backend.bicep' = {
         name: 'AZURE_STORAGE_CONTAINER'
         value: storageContainerName
       }
-     
+
       {
         name: 'FOUNDRY_PROJECT_ENDPOINT'
-        value:  '${aiFoundry.outputs.endpoint}api/projects/${aiFoundry.outputs.aiProjectName}/'
+        value: '${aiFoundry.outputs.endpoint}api/projects/${aiFoundry.outputs.aiProjectName}/'
       }
       {
         name: 'FOUNDRY_MODEL_DEPLOYMENT_NAME'
@@ -185,7 +188,7 @@ module backend 'app/backend.bicep' = {
       }
       {
         name: 'AZURE_OPENAI_ENDPOINT'
-        value:  aiFoundry.outputs.openAIEndpoint
+        value: aiFoundry.outputs.openAIEndpoint
       }
       {
         name: 'AZURE_OPENAI_CHAT_DEPLOYMENT_NAME'
@@ -211,7 +214,6 @@ module backend 'app/backend.bicep' = {
         name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
         value: monitoring.outputs.applicationInsightsInstrumentationKey
       }
-     
     ]
   }
 }
@@ -221,7 +223,9 @@ module account 'app/account.bicep' = {
   name: 'account'
   scope: resourceGroup
   params: {
-    name: !empty(accountContainerAppName) ? accountContainerAppName : '${abbrs.appContainerApps}account-${resourceToken}'
+    name: !empty(accountContainerAppName)
+      ? accountContainerAppName
+      : '${abbrs.appContainerApps}account-${resourceToken}'
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}account-${resourceToken}'
@@ -230,7 +234,6 @@ module account 'app/account.bicep' = {
     containerRegistryName: containerApps.outputs.registryName
     corsAcaUrl: ''
     exists: accountAppExists
-   
   }
 }
 
@@ -239,7 +242,9 @@ module transaction 'app/transaction.bicep' = {
   name: 'transaction'
   scope: resourceGroup
   params: {
-    name: !empty(transactionContainerAppName) ? transactionContainerAppName : '${abbrs.appContainerApps}transaction-${resourceToken}'
+    name: !empty(transactionContainerAppName)
+      ? transactionContainerAppName
+      : '${abbrs.appContainerApps}transaction-${resourceToken}'
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}transaction-${resourceToken}'
@@ -248,7 +253,6 @@ module transaction 'app/transaction.bicep' = {
     containerRegistryName: containerApps.outputs.registryName
     corsAcaUrl: ''
     exists: transactionAppExists
-   
   }
 }
 
@@ -257,7 +261,9 @@ module payment 'app/payment.bicep' = {
   name: 'payment'
   scope: resourceGroup
   params: {
-    name: !empty(paymentContainerAppName) ? paymentContainerAppName : '${abbrs.appContainerApps}payment-${resourceToken}'
+    name: !empty(paymentContainerAppName)
+      ? paymentContainerAppName
+      : '${abbrs.appContainerApps}payment-${resourceToken}'
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}payment-${resourceToken}'
@@ -271,9 +277,7 @@ module payment 'app/payment.bicep' = {
         name: 'TRANSACTIONS_API_SERVER_URL'
         value: transaction.outputs.SERVICE_API_URI
       }
-     
     ]
-   
   }
 }
 
@@ -285,7 +289,7 @@ module web 'app/web.bicep' = {
     location: location
     tags: tags
     identityName: '${abbrs.managedIdentityUserAssignedIdentities}web-${resourceToken}'
-    apiBaseUrl:  backend.outputs.SERVICE_API_URI
+    apiBaseUrl: backend.outputs.SERVICE_API_URI
     transactionApiUrl: transaction.outputs.SERVICE_API_URI
     accountApiUrl: account.outputs.SERVICE_API_URI
     applicationInsightsName: monitoring.outputs.applicationInsightsName
@@ -294,7 +298,6 @@ module web 'app/web.bicep' = {
     exists: webAppExists
   }
 }
-
 
 // module openAi 'shared/ai/cognitiveservices.bicep' =  {
 //   name: 'openai'
@@ -319,14 +322,14 @@ module web 'app/web.bicep' = {
 //           capacity: chatGptDeploymentCapacity
 //         }
 //       }
-      
+
 //     ]
 //   }
 // }
 
 module aiFoundry 'shared/ai/foundry.bicep' = {
- name: 'ai-foundry'
- scope: foundryResourceGroup
+  name: 'ai-foundry'
+  scope: foundryResourceGroup
   params: {
     aiProjectName: !empty(aiProjectName) ? aiProjectName : 'proj-${resourceToken}'
     aiProjectFriendlyName: 'Banking Assistant Project'
@@ -338,28 +341,30 @@ module aiFoundry 'shared/ai/foundry.bicep' = {
 }
 
 @batchSize(1)
-module foundryModelDeployments 'shared/ai/foundry-model-deployment.bicep' = [for (model, index) in models: {
-  name: 'foundry-model-deployment-${model.name}-${index}'
-  scope: foundryResourceGroup
-   params: {
-    foundryResourceName: aiFoundry.outputs.accountName
-    deploymentName: model.deploymentName
-    modelName: model.name
-    modelFormat: model.format
-    modelVersion: model.version
-    modelSkuName: model.skuName
-    modelCapacity: model.capacity
-    tags: tags
+module foundryModelDeployments 'shared/ai/foundry-model-deployment.bicep' = [
+  for (model, index) in models: {
+    name: 'foundry-model-deployment-${model.name}-${index}'
+    scope: foundryResourceGroup
+    params: {
+      foundryResourceName: aiFoundry.outputs.accountName
+      deploymentName: model.deploymentName
+      modelName: model.name
+      modelFormat: model.format
+      modelVersion: model.version
+      modelSkuName: model.skuName
+      modelCapacity: model.capacity
+      tags: tags
+    }
   }
-}]
-
-
+]
 
 module documentIntelligence 'shared/ai/cognitiveservices.bicep' = {
   name: 'documentIntelligence'
   scope: documentIntelligenceResourceGroup
   params: {
-    name: !empty(documentIntelligenceServiceName) ? documentIntelligenceServiceName : '${abbrs.cognitiveServicesFormRecognizer}${resourceToken}'
+    name: !empty(documentIntelligenceServiceName)
+      ? documentIntelligenceServiceName
+      : '${abbrs.cognitiveServicesFormRecognizer}${resourceToken}'
     kind: 'FormRecognizer'
     location: documentIntelligenceResourceGroupLocation
     tags: tags
@@ -368,8 +373,6 @@ module documentIntelligence 'shared/ai/cognitiveservices.bicep' = {
     }
   }
 }
-
-
 
 module storage 'shared/storage/storage-account.bicep' = {
   name: 'storage'
@@ -396,12 +399,9 @@ module storage 'shared/storage/storage-account.bicep' = {
   }
 }
 
-
-
-
 // SYSTEM IDENTITIES
 
-module foundryCognitiveUserRoleBackend 'shared/security/role.bicep' =  {
+module foundryCognitiveUserRoleBackend 'shared/security/role.bicep' = {
   scope: foundryResourceGroup
   name: 'foundry-cognitive-user-role-backend'
   params: {
@@ -411,7 +411,7 @@ module foundryCognitiveUserRoleBackend 'shared/security/role.bicep' =  {
   }
 }
 
-module foundryAIDeveloperRoleBackend 'shared/security/role.bicep' =  {
+module foundryAIDeveloperRoleBackend 'shared/security/role.bicep' = {
   scope: foundryResourceGroup
   name: 'foundry-ai-developerrole-backend'
   params: {
@@ -445,29 +445,23 @@ output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId
 output AZURE_RESOURCE_GROUP string = resourceGroup.name
 
-
 output AZURE_CONTAINER_ENVIRONMENT_NAME string = containerApps.outputs.environmentName
 output AZURE_CONTAINER_REGISTRY_ENDPOINT string = containerApps.outputs.registryLoginServer
 output AZURE_CONTAINER_REGISTRY_NAME string = containerApps.outputs.registryName
 
 // Shared by all OpenAI deployments
 
-
 // Specific to Azure Foundry
-output FOUNDRY_PROJECT_ENDPOINT string =  '${aiFoundry.outputs.endpoint}api/projects/${aiFoundry.outputs.aiProjectName}/'
+output FOUNDRY_PROJECT_ENDPOINT string = '${aiFoundry.outputs.endpoint}api/projects/${aiFoundry.outputs.aiProjectName}/'
 output FOUNDRY_RESOURCE_NAME string = aiFoundry.outputs.accountName
 output FOUNDRY_CHATGPT_DEPLOYMENT string = models[0].deploymentName
-
 
 output AZURE_DOCUMENT_INTELLIGENCE_SERVICE string = documentIntelligence.outputs.name
 output AZURE_DOCUMENT_INTELLIGENCE_RESOURCE_GROUP string = documentIntelligenceResourceGroup.name
 
-
 output AZURE_STORAGE_ACCOUNT string = storage.outputs.name
 output AZURE_STORAGE_CONTAINER string = storageContainerName
 output AZURE_STORAGE_RESOURCE_GROUP string = storageResourceGroup.name
-
-
 
 // output BACKEND_URI string = backend.outputs.uri
 // output INDEXER_FUNCTIONAPP_NAME string = indexer.outputs.name

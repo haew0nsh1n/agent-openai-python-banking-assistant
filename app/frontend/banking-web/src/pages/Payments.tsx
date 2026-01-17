@@ -1,13 +1,13 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Clock, DollarSign, CheckCircle, CreditCard } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from "recharts";
 import { bffClient } from "@/api/bffClient";
-import { Payment } from "@/models/Payments";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useAgentResponseHandler } from "@/context/AgentResponseContext";
+import { Payment } from "@/models/Payments";
+import { CheckCircle, Clock, CreditCard, DollarSign } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis } from "recharts";
 
 export default function Payments() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'paid'>('all');
@@ -20,18 +20,23 @@ export default function Payments() {
   }, [refreshTrigger]);
 
   useAgentResponseHandler(() => {
-    console.log("Refresh update "+ refreshTrigger);
+    console.log("Refresh update " + refreshTrigger);
     setRefreshTrigger((prev) => prev + 1);
   });
 
-  const isPendingStatus = (status: string) => status === 'pending' || status === 'overdue';
-  const normalizeStatus = (status: string) => (isPendingStatus(status) ? 'pending' : status);
+  const isPendingStatus = (status: string) => status === 'pending' || status === 'overdue' || status === '대기중';
+  const isPaidStatus = (status: string) => status === 'paid' || status === '완료';
+  const normalizeStatus = (status: string) => {
+    if (isPendingStatus(status)) return 'pending';
+    if (isPaidStatus(status)) return 'paid';
+    return status;
+  };
 
   const filteredPayments = paymentsData.filter(payment => {
     const matchesFilter =
       filter === 'all' ||
       (filter === 'pending' && isPendingStatus(payment.status)) ||
-      (filter === 'paid' && payment.status === 'paid');
+      (filter === 'paid' && isPaidStatus(payment.status));
     // For demo, just filter by id as name is not present in Payment model
     const matchesSearch = payment.description.toLowerCase().includes(searchTerm.toLowerCase()) || payment.recipientName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
@@ -53,7 +58,7 @@ export default function Payments() {
   };
 
   const totalPending = paymentsData.filter(payment => isPendingStatus(payment.status)).reduce((sum, payment) => sum + payment.amount, 0);
-  const totalPaid = paymentsData.filter(payment => payment.status === 'paid').reduce((sum, payment) => sum + payment.amount, 0);
+  const totalPaid = paymentsData.filter(payment => isPaidStatus(payment.status)).reduce((sum, payment) => sum + payment.amount, 0);
 
   const now = new Date();
   const currentMonth = now.getMonth();
@@ -112,10 +117,10 @@ export default function Payments() {
   return (
     <div className="p-6 space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-foreground">Payments</h1>
+        <h1 className="text-3xl font-bold text-foreground">결제</h1>
         <Button className="bg-primary hover:bg-primary/90">
           <CreditCard className="h-4 w-4 mr-2" />
-          Make Payment
+          결제하기
         </Button>
       </div>
 
@@ -123,34 +128,34 @@ export default function Payments() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="bg-card/50 backdrop-blur border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Pending</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">총 대기 금액</CardTitle>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">${totalPending.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">{filteredPayments.filter(p => isPendingStatus(p.status)).length} payments pending</p>
+            <p className="text-xs text-muted-foreground">{filteredPayments.filter(p => isPendingStatus(p.status)).length}건 결제 대기 중</p>
           </CardContent>
         </Card>
 
         <Card className="bg-card/50 backdrop-blur border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Paid This Month</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">이번 달 결제 완료</CardTitle>
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-500">${totalPaid.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">{filteredPayments.filter(p => p.status === 'paid').length} payment completed</p>
+            <p className="text-xs text-muted-foreground">{filteredPayments.filter(p => isPaidStatus(p.status)).length}건 결제 완료</p>
           </CardContent>
         </Card>
 
         <Card className="bg-card/50 backdrop-blur border-border/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Budget</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">월 예산</CardTitle>
             <DollarSign className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-foreground">$6,250</div>
-            <p className="text-xs text-muted-foreground">Average monthly payments</p>
+            <p className="text-xs text-muted-foreground">월 평균 결제액</p>
           </CardContent>
         </Card>
       </div>
@@ -161,33 +166,33 @@ export default function Payments() {
         <Card className="bg-card/50 backdrop-blur border-border/50">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-foreground">Current Payments</CardTitle>
+              <CardTitle className="text-foreground">현재 결제 내역</CardTitle>
               <div className="flex space-x-2">
                 <Button
                   variant={filter === 'all' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFilter('all')}
                 >
-                  All
+                  전체
                 </Button>
                 <Button
                   variant={filter === 'pending' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFilter('pending')}
                 >
-                  Pending
+                  대기중
                 </Button>
                 <Button
                   variant={filter === 'paid' ? 'default' : 'outline'}
                   size="sm"
                   onClick={() => setFilter('paid')}
                 >
-                  Paid
+                  완료
                 </Button>
               </div>
             </div>
             <Input
-              placeholder="Search payments..."
+              placeholder="결제 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="max-w-sm"
@@ -201,18 +206,18 @@ export default function Payments() {
                 const showCardId = payment.paymentType === 'CreditCard' && payment.cardId;
                 return (
                   <div key={payment.id} className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-3">
                       {getStatusIcon(payment.status)}
                       <div>
                         <p className="font-medium text-foreground">{payment.description}</p>
-                        <p className="text-sm text-muted-foreground">Date: {payment.timestamp}</p>
-                        <p className="text-sm text-muted-foreground">Method: {paymentTypeLabel}</p>
-                        <p className="text-sm text-muted-foreground">Recipient: {payment.recipientName}</p>
+                        <p className="text-sm text-muted-foreground">날짜: {payment.timestamp}</p>
+                        <p className="text-sm text-muted-foreground">결제 방법: {paymentTypeLabel}</p>
+                        <p className="text-sm text-muted-foreground">수취인: {payment.recipientName}</p>
                         {showCardId && (
-                          <p className="text-xs uppercase tracking-wide text-muted-foreground">Card ID: {payment.cardId}</p>
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">카드 ID: {payment.cardId}</p>
                         )}
                       </div>
-                      </div>
+                    </div>
                     <div className="text-right space-y-1">
                       <p className="font-semibold text-foreground">${payment.amount.toFixed(2)}</p>
                       <Badge className={getStatusColor(payment.status)}>
@@ -229,7 +234,7 @@ export default function Payments() {
         {/* Monthly Trends Chart */}
         <Card className="bg-card/50 backdrop-blur border-border/50">
           <CardHeader>
-            <CardTitle className="text-foreground">Monthly Payment Trend — {monthLabel}</CardTitle>
+            <CardTitle className="text-foreground">월별 결제 트렌드 — {monthLabel}</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={350}>
@@ -249,7 +254,7 @@ export default function Payments() {
                   />
                 </LineChart>
               ) : (
-                <div className="text-muted-foreground text-center py-8">No payments captured for {monthLabel} yet.</div>
+                <div className="text-muted-foreground text-center py-8">{monthLabel}에 기록된 결제가 아직 없습니다.</div>
               )}
             </ResponsiveContainer>
           </CardContent>

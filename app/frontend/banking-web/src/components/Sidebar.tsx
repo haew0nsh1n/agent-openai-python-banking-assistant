@@ -1,37 +1,33 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import { 
-  BarChart3, 
-  CreditCard, 
-  Menu, 
-  X, 
-  Building2,
-  TrendingUp,
+import {
+  BarChart3,
   ChevronLeft,
   ChevronRight,
-  Wallet,
+  CreditCard,
+  HelpCircle,
   PieChart,
+  TrendingUp,
   User,
-  HelpCircle
+  Wallet
 } from "lucide-react";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: BarChart3 },
-  { name: "Payments", href: "/payments", icon: CreditCard },
-  { name: "Credit Cards", href: "/credit-cards", icon: Wallet },
-  { name: "Investment Portfolio", href: "/portfolio", icon: PieChart },
-  { name: "Transaction Analytics", href: "/analytics", icon: TrendingUp },
-  { name: "Account", href: "/account", icon: User },
-  { name: "Support", href: "/support", icon: HelpCircle }
+  { name: "대시보드", href: "/", icon: BarChart3 },
+  { name: "결제", href: "/payments", icon: CreditCard },
+  { name: "신용카드", href: "/credit-cards", icon: Wallet },
+  { name: "투자 포트폴리오", href: "/portfolio", icon: PieChart },
+  { name: "거래 분석", href: "/analytics", icon: TrendingUp },
+  { name: "계정", href: "/account", icon: User },
+  { name: "고객지원", href: "/support", icon: HelpCircle }
 ];
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className={`bg-sidebar border-r border-sidebar-border transition-all duration-300 shadow-professional ${
-      collapsed ? "w-16" : "w-64"
-    }`}>
+    <div className={`bg-sidebar border-r border-sidebar-border transition-all duration-300 shadow-professional ${collapsed ? "w-16" : "w-64"
+      }`}>
       <nav className="mt-3 px-3">
         <div className="mb-2 flex justify-end">
           <button
@@ -47,10 +43,9 @@ export default function Sidebar() {
               <NavLink
                 to={item.href}
                 className={({ isActive }) =>
-                  `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                  `flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                   }`
                 }
               >

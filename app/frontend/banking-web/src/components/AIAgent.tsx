@@ -1,13 +1,13 @@
 
-import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Send, X, Minimize2, Maximize2, Bot, Sparkles, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Bot, GripVertical, Maximize2, MessageCircle, Minimize2, Sparkles, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAgentResponse } from "@/context/AgentResponseContext";
 
-import { ChatProvider, ChatShell, type RetryConfig, type ShellHeaderConfig, type ComposerConfig, type ShellContainerConfig } from "@/components/chat";
-import type { StarterPrompt, ThreadItem, Thread } from "@/components/chat/types";
+import { ChatProvider, ChatShell, type ComposerConfig, type RetryConfig, type ShellContainerConfig, type ShellHeaderConfig } from "@/components/chat";
+import type { StarterPrompt } from "@/components/chat/types";
 
 
 
@@ -23,68 +23,68 @@ export default function AIAgent() {
   const chatServerUrl = import.meta.env.VITE_CHAT_SERVER_URL || "/chatkit";
 
   const BANKING_STARTER_PROMPTS: StarterPrompt[] = [
-  {
-    id: "pay-bill",
-    title: "Pay a bill",
-    description: "Upload an invoice or share the details",
-    icon: "🧾",
-    content: "Pay my latest Alpine Utilities invoice for this month",
-  },
-  {
-    id: "card-trend",
-    title: "Review card spend",
-    description: "Summaries, trends, and anomalies",
-    icon: "💳",
-    content: "Summarize my Platinum Visa spending from the past 30 days",
-  },
-  {
-    id: "transactions-search",
-    title: "Investigate payments",
-    description: "Search through your payments based on various criteria.",
-    icon: "🛡️",
-    content: "when was last time I've paid contoso?",
-  },
-];
-  
-    // Configure which HTTP status codes should allow retry
-    // Default: [408, 429, 500, 502, 503, 504]
-    const retryConfig: RetryConfig = {
-      retryableStatusCodes: [408, 429, 500, 502, 503, 504],
-    };
-  
-    // Configure header appearance and visibility
-    // All properties are optional - omit to use defaults
-    const headerConfig: ShellHeaderConfig = {
-      showHeader: false,                        // Show/hide entire header
-      showIcon: false,                          // Show/hide left icon badge
-      // icon: Bot,                            // Custom icon (import from lucide-react)
-      showTitle: false,                         // Show/hide title label           // Custom title text
-      showActiveThread: false,                  // Show/hide active thread name
-      activeThreadFallback: "Untitled thread", // Text when no thread selected
-      showNewThreadButton: true,               // Show/hide new thread button
-      showHistoryButton: false,                 // Show/hide history toggle button
-      // customContent: <div>Custom Header</div> // Completely replace header content
-    };
+    {
+      id: "pay-bill",
+      title: "청구서 결제",
+      description: "청구서를 업로드하거나 세부 정보를 공유하세요",
+      icon: "🧾",
+      content: "이번 달 Alpine Utilities 최근 청구서를 결제해주세요",
+    },
+    {
+      id: "card-trend",
+      title: "카드 사용 확인",
+      description: "요약, 트렌드 및 이상 항목",
+      icon: "💳",
+      content: "지난 30일간 Platinum Visa 카드 사용 내역을 요약해주세요",
+    },
+    {
+      id: "transactions-search",
+      title: "결제 내역 검색",
+      description: "다양한 기준으로 결제 내역을 검색하세요.",
+      icon: "🛡️",
+      content: "contoso에 마지막으로 결제한 날짜가 언제였나요?",
+    },
+  ];
 
-    // Configure composer appearance and behavior
-    // All properties are optional - omit to use defaults
-    const composerConfig: ComposerConfig = {
-      placeholder: "Type your message...",
-      buttonSize: "sm",                        // "sm" | "md" | "lg"
-      showAttachmentCounter: false,            // Show/hide attachment counter
-      maxAttachments: 5,                       // Maximum number of attachments
-      showAttachmentTitle: false,               // Show/hide attachment filename
-      showAttachmentSize: false,                // Show/hide attachment file size
-    };
+  // Configure which HTTP status codes should allow retry
+  // Default: [408, 429, 500, 502, 503, 504]
+  const retryConfig: RetryConfig = {
+    retryableStatusCodes: [408, 429, 500, 502, 503, 504],
+  };
 
-    // Configure shell container for embedded mode
-    // Remove border, rounded corners, and shadow since AIAgent Card provides them
-    const shellContainerConfig: ShellContainerConfig = {
-      showBorder: false,
-      showRoundedCorners: false,
-      showShadow: false,
-      backgroundColor: "bg-transparent",
-    };
+  // Configure header appearance and visibility
+  // All properties are optional - omit to use defaults
+  const headerConfig: ShellHeaderConfig = {
+    showHeader: false,                        // Show/hide entire header
+    showIcon: false,                          // Show/hide left icon badge
+    // icon: Bot,                            // Custom icon (import from lucide-react)
+    showTitle: false,                         // Show/hide title label           // Custom title text
+    showActiveThread: false,                  // Show/hide active thread name
+    activeThreadFallback: "제목 없는 스레드", // Text when no thread selected
+    showNewThreadButton: true,               // Show/hide new thread button
+    showHistoryButton: false,                 // Show/hide history toggle button
+    // customContent: <div>Custom Header</div> // Completely replace header content
+  };
+
+  // Configure composer appearance and behavior
+  // All properties are optional - omit to use defaults
+  const composerConfig: ComposerConfig = {
+    placeholder: "메시지를 입력하세요...",
+    buttonSize: "sm",                        // "sm" | "md" | "lg"
+    showAttachmentCounter: false,            // Show/hide attachment counter
+    maxAttachments: 5,                       // Maximum number of attachments
+    showAttachmentTitle: false,               // Show/hide attachment filename
+    showAttachmentSize: false,                // Show/hide attachment file size
+  };
+
+  // Configure shell container for embedded mode
+  // Remove border, rounded corners, and shadow since AIAgent Card provides them
+  const shellContainerConfig: ShellContainerConfig = {
+    showBorder: false,
+    showRoundedCorners: false,
+    showShadow: false,
+    backgroundColor: "bg-transparent",
+  };
 
 
 
@@ -97,7 +97,7 @@ export default function AIAgent() {
 
   const handleThreadStarted = (threadId: string) => {
     console.log("Thread started:", threadId);
-     triggerOnResponseEnd();
+    triggerOnResponseEnd();
   }
 
 
@@ -163,7 +163,7 @@ export default function AIAgent() {
       startHeight: dimensions.height,
     };
   };
-  
+
   if (!isOpen) {
     return (
       <div className="fixed bottom-6 right-6 z-50">
@@ -176,17 +176,17 @@ export default function AIAgent() {
                   <Sparkles className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-semibold text-slate-900 mb-1">AI Assistant Ready</h3>
-                  <p className="text-xs text-slate-600 mb-2">Need help with banking tasks? I can assist with payments, account info, and more.</p>
-                  <Button 
-                    size="sm" 
+                  <h3 className="text-sm font-semibold text-slate-900 mb-1">AI 어시스턴트 준비 완료</h3>
+                  <p className="text-xs text-slate-600 mb-2">뱅킹 업무에 도움이 필요하신가요? 결제, 계정 정보 등을 도와드릴 수 있습니다.</p>
+                  <Button
+                    size="sm"
                     onClick={() => {
                       setIsOpen(true);
                       setShowInvitation(false);
                     }}
                     className="text-xs h-7 bg-blue-600 hover:bg-blue-700"
                   >
-                    Start Chat
+                    채팅 시작
                   </Button>
                 </div>
                 <button
@@ -213,7 +213,7 @@ export default function AIAgent() {
   }
 
   return (
-    <Card 
+    <Card
       className="fixed bottom-6 right-6 bg-white border border-slate-200 shadow-professional-lg animate-scale-in z-50 rounded-2xl overflow-hidden"
       style={{
         width: isMinimized ? '320px' : `${dimensions.width}px`,
@@ -226,12 +226,12 @@ export default function AIAgent() {
         <div
           onMouseDown={handleResizeStart}
           className="absolute top-0 left-0 w-6 h-6 cursor-nwse-resize hover:bg-blue-100 transition-colors group z-10"
-          title="Drag to resize"
+          title="드래그하여 크기 조절"
         >
           <GripVertical className="h-4 w-4 text-slate-400 group-hover:text-blue-600 rotate-45 absolute top-1 left-1" />
         </div>
       )}
-      
+
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="flex items-center space-x-3">
@@ -239,10 +239,10 @@ export default function AIAgent() {
             <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h3 className="font-semibold text-sm text-slate-900">AI Banking Assistant</h3>
+            <h3 className="font-semibold text-sm text-slate-900">AI 뱅킹 어시스턴트</h3>
             <p className="text-xs text-slate-600 flex items-center">
               <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
-              Online & Ready to Help
+              온라인 - 도움이 필요하신가요?
             </p>
           </div>
         </div>
@@ -267,15 +267,15 @@ export default function AIAgent() {
       </div>
 
       {/* ChatKit Container - hide when minimized but keep mounted to preserve state */}
-      <div 
+      <div
         className={`${isMinimized ? 'opacity-0 pointer-events-none h-0' : 'opacity-100'}`}
-        style={{ 
+        style={{
           height: isMinimized ? '0' : `${dimensions.height - 73}px`,
           transition: isResizing ? 'none' : 'all 300ms',
         }}
       >
-        <ChatProvider 
-          starterPrompts={BANKING_STARTER_PROMPTS} 
+        <ChatProvider
+          starterPrompts={BANKING_STARTER_PROMPTS}
           chatServerUrl={chatServerUrl}
           retryConfig={retryConfig}
           attachmentImageSize="lg"

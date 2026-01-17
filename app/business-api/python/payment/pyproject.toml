@@ -9,4 +9,5 @@ dependencies = [
     "fastmcp",
     "pydantic",
     "requests",
+    "azure-monitor-opentelemetry>=1.6.0"
 ]

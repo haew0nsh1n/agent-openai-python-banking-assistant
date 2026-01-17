@@ -1,18 +1,17 @@
 
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { bffClient } from "@/api/bffClient";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { CreditCard as CreditCardIcon, Plus, DollarSign, Calendar, TrendingUp } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreditCard } from "@/models/CreditCard";
 import { CreditCardTransaction } from "@/models/CreditCardTransaction";
-import { bffApi } from "@/mocks/bffApi";
-import { bffClient } from "@/api/bffClient";
+import { Calendar, CreditCard as CreditCardIcon, DollarSign, Plus, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
 
 
 const CreditCardManagement = () => {
@@ -67,7 +66,7 @@ const CreditCardManagement = () => {
     }
   };
 
-  const filteredTransactions = selectedCard 
+  const filteredTransactions = selectedCard
     ? transactions.filter(t => t.cardId === selectedCard)
     : transactions;
 
@@ -75,37 +74,37 @@ const CreditCardManagement = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Credit Card Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">신용카드 관리</h1>
           <p className="text-muted-foreground">
-            Manage your credit cards, view balances, and track transactions
+            신용카드를 관리하고, 잔액을 확인하고, 거래 내역을 추적하세요.
           </p>
         </div>
         <Dialog>
           <DialogTrigger asChild>
             <Button className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
-              Add New Card
+              신규 카드 추가
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Credit Card</DialogTitle>
+              <DialogTitle>신용카드 추가</DialogTitle>
               <DialogDescription>
-                Enter your credit card details to add it to your account.
+                계정에 추가할 신용카드 정보를 입력하세요.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="cardName">Card Name</Label>
-                <Input id="cardName" placeholder="e.g., Business Platinum" />
+                <Label htmlFor="cardName">카드 이름</Label>
+                <Input id="cardName" placeholder="예: 비즈니스 플래티넘" />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="cardNumber">Card Number</Label>
+                <Label htmlFor="cardNumber">카드 번호</Label>
                 <Input id="cardNumber" placeholder="1234 5678 9012 3456" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="expiry">Expiry Date</Label>
+                  <Label htmlFor="expiry">만료일</Label>
                   <Input id="expiry" placeholder="MM/YY" />
                 </div>
                 <div className="grid gap-2">
@@ -114,7 +113,7 @@ const CreditCardManagement = () => {
                 </div>
               </div>
             </div>
-            <Button className="w-full">Add Credit Card</Button>
+            <Button className="w-full">신용카드 추가</Button>
           </DialogContent>
         </Dialog>
       </div>
@@ -123,7 +122,7 @@ const CreditCardManagement = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+            <CardTitle className="text-sm font-medium">총 잔액</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -131,14 +130,14 @@ const CreditCardManagement = () => {
               ${creditCards.reduce((sum, card) => sum + card.balance, 0).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Across {creditCards.length} active cards
+              {creditCards.length}개의 활성 카드에서
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Credit Limit</CardTitle>
+            <CardTitle className="text-sm font-medium">총 신용 한도</CardTitle>
             <CreditCardIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -146,23 +145,23 @@ const CreditCardManagement = () => {
               ${creditCards.reduce((sum, card) => sum + card.limit, 0).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Available credit across all cards
+              모든 카드의 사용 가능한 신용 한도
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Utilization Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">이용률</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {((creditCards.reduce((sum, card) => sum + card.balance, 0) / 
-                 creditCards.reduce((sum, card) => sum + card.limit, 0)) * 100).toFixed(1)}%
+              {((creditCards.reduce((sum, card) => sum + card.balance, 0) /
+                creditCards.reduce((sum, card) => sum + card.limit, 0)) * 100).toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground">
-              Overall credit utilization
+              전체 신용 이용률
             </p>
           </CardContent>
         </Card>
@@ -170,9 +169,9 @@ const CreditCardManagement = () => {
 
       <Tabs defaultValue="cards" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="cards">Credit Cards</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          <TabsTrigger value="recharge">Recharge</TabsTrigger>
+          <TabsTrigger value="cards">신용카드</TabsTrigger>
+          <TabsTrigger value="transactions">거래 내역</TabsTrigger>
+          <TabsTrigger value="recharge">충전</TabsTrigger>
         </TabsList>
 
         <TabsContent value="cards" className="space-y-4">
@@ -197,37 +196,37 @@ const CreditCardManagement = () => {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between items-center">
                     <div>
-                      <p className="text-sm text-muted-foreground">Current Balance</p>
+                      <p className="text-sm text-muted-foreground">현재 잔액</p>
                       <p className="text-2xl font-bold">${card.balance.toLocaleString()}</p>
                     </div>
                     <div className="text-right space-y-3">
                       <div>
-                        <p className="text-sm text-muted-foreground">Credit Limit</p>
+                        <p className="text-sm text-muted-foreground">신용 한도</p>
                         <p className="text-lg font-semibold">${card.limit.toLocaleString()}</p>
                       </div>
                       {card.type === 'recharge' && card.rechargedAmount > 0 && (
                         <div>
-                          <p className="text-sm text-muted-foreground">Recharged Amount</p>
+                          <p className="text-sm text-muted-foreground">충전 금액</p>
                           <p className="text-lg font-semibold text-green-600">${card.rechargedAmount.toLocaleString()}</p>
                         </div>
                       )}
                     </div>
                   </div>
-                  
+
                   <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full" 
+                    <div
+                      className="bg-blue-600 h-2 rounded-full"
                       style={{ width: `${(card.balance / card.limit) * 100}%` }}
                     />
                   </div>
-                  
+
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>Expire: {new Date(card.expirationDate).toLocaleDateString()}</span>
+                      <span>만료일: {new Date(card.expirationDate).toLocaleDateString('ko-KR')}</span>
                     </div>
                     <span className="text-muted-foreground">
-                      {((card.balance / card.limit) * 100).toFixed(1)}% used
+                      {((card.balance / card.limit) * 100).toFixed(1)}% 사용
                     </span>
                   </div>
                 </CardContent>
@@ -241,15 +240,15 @@ const CreditCardManagement = () => {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Recent Transactions</CardTitle>
-                  <CardDescription>View and manage your credit card transactions</CardDescription>
+                  <CardTitle>최근 거래 내역</CardTitle>
+                  <CardDescription>신용카드 거래 내역을 보고 관리하세요.</CardDescription>
                 </div>
-                <select 
+                <select
                   className="rounded-md border border-input bg-background px-3 py-2"
                   value={selectedCard}
                   onChange={(e) => setSelectedCard(e.target.value)}
                 >
-                  <option value="">All Cards</option>
+                  <option value="">모든 카드</option>
                   {creditCards.map((card) => (
                     <option key={card.id} value={card.id}>
                       {card.name} ({maskCardNumber(card.number)})
@@ -262,11 +261,11 @@ const CreditCardManagement = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Merchant</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>날짜</TableHead>
+                    <TableHead>설명</TableHead>
+                    <TableHead>가맹점</TableHead>
+                    <TableHead>카테고리</TableHead>
+                    <TableHead className="text-right">금액</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -278,9 +277,8 @@ const CreditCardManagement = () => {
                       <TableCell>
                         <Badge variant="outline">{transaction.category}</Badge>
                       </TableCell>
-                      <TableCell className={`text-right font-medium ${
-                        transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <TableCell className={`text-right font-medium ${transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
                         {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount).toFixed(2)}
                       </TableCell>
                     </TableRow>
@@ -294,32 +292,32 @@ const CreditCardManagement = () => {
         <TabsContent value="recharge" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Recharge Credit Card</CardTitle>
+              <CardTitle>신용카드 충전</CardTitle>
               <CardDescription>
-                Make a payment to reduce your credit card balance
+                신용카드 잔액을 줄이기 위해 결제하세요.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="card-select">Select Credit Card</Label>
-                  <select 
+                  <Label htmlFor="card-select">신용카드 선택</Label>
+                  <select
                     id="card-select"
                     className="rounded-md border border-input bg-background px-3 py-2"
                     value={selectedCard}
                     onChange={(e) => setSelectedCard(e.target.value)}
                   >
-                    <option value="">Choose a card...</option>
+                    <option value="">카드를 선택하세요...</option>
                     {creditCards.filter(card => card.status === 'active' && card.type === 'recharge').map((card) => (
                       <option key={card.id} value={card.id}>
-                        {card.name} ({maskCardNumber(card.number)}) - Balance: ${card.balance.toFixed(2)}
+                        {card.name} ({maskCardNumber(card.number)}) - 잔액: ${card.balance.toFixed(2)}
                       </option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="grid gap-2">
-                  <Label htmlFor="amount">Payment Amount</Label>
+                  <Label htmlFor="amount">결제 금액</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -328,37 +326,37 @@ const CreditCardManagement = () => {
                     onChange={(e) => setRechargeAmount(e.target.value)}
                   />
                 </div>
-                
-                <Button 
+
+                <Button
                   onClick={handleRecharge}
                   disabled={!selectedCard || !rechargeAmount}
                   className="w-full"
                 >
-                  Make Payment
+                  결제하기
                 </Button>
               </div>
-              
+
               {selectedCard && (
                 <div className="mt-6 p-4 border rounded-lg bg-muted/50">
-                  <h4 className="font-medium mb-2">Payment Summary</h4>
+                  <h4 className="font-medium mb-2">결제 요약</h4>
                   {(() => {
                     const card = creditCards.find(c => c.id === selectedCard);
                     const paymentAmount = parseFloat(rechargeAmount) || 0;
                     const newBalance = Math.max(0, (card?.balance || 0) - paymentAmount);
-                    
+
                     return (
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
-                          <span>Current Balance:</span>
+                          <span>현재 잔액:</span>
                           <span>${card?.balance.toFixed(2)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>Payment Amount:</span>
+                          <span>결제 금액:</span>
                           <span>${paymentAmount.toFixed(2)}</span>
                         </div>
                         <hr />
                         <div className="flex justify-between font-medium">
-                          <span>New Balance:</span>
+                          <span>새 잔액:</span>
                           <span>${newBalance.toFixed(2)}</span>
                         </div>
                       </div>
